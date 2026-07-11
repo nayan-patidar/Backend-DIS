@@ -1,0 +1,299 @@
+<!-- Global Alert Toast Notifications (Bootstrap Toast integration) -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+  <div *ngFor="let alert of alerts" 
+       class="toast show align-items-center text-white border-0 shadow-lg p-2 rounded-3 mb-2"
+       [ngClass]="{
+         'bg-success': alert.type === 'success',
+         'bg-danger': alert.type === 'danger',
+         'bg-warning text-dark': alert.type === 'warning',
+         'bg-info': alert.type === 'info'
+       }"
+       role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center gap-2">
+        <i class="bi fs-5" [ngClass]="{
+          'bi-check-circle-fill': alert.type === 'success',
+          'bi-exclamation-triangle-fill': alert.type === 'danger' || alert.type === 'warning',
+          'bi-info-circle-fill': alert.type === 'info'
+        }"></i>
+        <span class="fw-medium text-sm">{{ alert.message }}</span>
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" 
+              [class.btn-close-white]="alert.type !== 'warning'" 
+              (click)="removeAlert(alert)" 
+              aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Authenticated Layout Shell -->
+<div class="layout-wrapper" *ngIf="isLoggedIn && !isLandingPage">
+  <!-- Collapsible Left Sidebar -->
+  <aside class="sidebar bg-white border-end d-flex flex-column" [class.collapsed]="sidebarCollapsed">
+    <!-- Branding Header -->
+    <div class="d-flex align-items-center justify-content-between p-4 border-bottom border-light-subtle logo-container">
+      <a routerLink="/dashboard" class="text-decoration-none d-flex align-items-center gap-3">
+        <div class="logo-box bg-primary text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px;">
+          <i class="bi bi-star-fill fs-5"></i>
+        </div>
+        <span class="logo-text fw-bold text-dark fs-5 mb-0" *ngIf="!sidebarCollapsed" style="letter-spacing: -0.5px;">Eventora</span>
+      </a>
+    </div>
+
+    <!-- Navigation Menu (Role Dependent) -->
+    <div class="flex-grow-1 py-3 px-2 overflow-y-auto">
+      <ul class="nav nav-pills flex-column gap-1">
+        <!-- Dashboard Link -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/dashboard"
+             routerLinkActive="active-link"
+             [routerLinkActiveOptions]="{exact: true}">
+            <i class="bi bi-grid-1x2-fill fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">Dashboard</span>
+          </a>
+        </li>
+
+        <!-- Events Catalog -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/events"
+             routerLinkActive="active-link">
+            <i class="bi bi-calendar3 fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">
+              {{ currentRole === 'ADMIN' ? 'Events Directory' : 'Explore Events' }}
+            </span>
+          </a>
+        </li>
+
+        <!-- Create Event (Admin Only) -->
+        <li class="nav-item" *ngIf="currentRole === 'ADMIN'">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/events/create"
+             routerLinkActive="active-link">
+            <i class="bi bi-calendar-plus-fill fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">Create Event</span>
+          </a>
+        </li>
+
+        <!-- Registrations Link -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/participants"
+             routerLinkActive="active-link">
+            <i class="bi bi-people-fill fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">
+              {{ currentRole === 'ADMIN' ? 'Registrations List' : 'My Registrations' }}
+            </span>
+          </a>
+        </li>
+
+        <!-- Users Link (Admin Only) -->
+        <li class="nav-item" *ngIf="currentRole === 'ADMIN'">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/users"
+             routerLinkActive="active-link">
+            <i class="bi bi-person-badge fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">Users Directory</span>
+          </a>
+        </li>
+
+        <!-- My Profile -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/profile"
+             routerLinkActive="active-link">
+            <i class="bi bi-person-bounding-box fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">My Profile</span>
+          </a>
+        </li>
+
+        <!-- Settings -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/settings"
+             routerLinkActive="active-link">
+            <i class="bi bi-gear-fill fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">Settings</span>
+          </a>
+        </li>
+
+        <!-- Help & Support -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center gap-3 px-3 py-2-5 rounded-3 text-muted hover-bg"
+             routerLink="/help"
+             routerLinkActive="active-link">
+            <i class="bi bi-question-circle-fill fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">Help & Support</span>
+          </a>
+        </li>
+
+        <!-- Logout Button -->
+        <li class="nav-item mt-3 border-top pt-2">
+          <button class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-danger border-0 bg-transparent w-100 text-start hover-bg"
+             (click)="logout()">
+            <i class="bi bi-box-arrow-right fs-5"></i>
+            <span class="menu-label" *ngIf="!sidebarCollapsed">Logout</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Sidebar Bottom Toggle -->
+    <div class="p-3 border-top border-light-subtle text-end">
+      <button class="btn btn-link text-muted p-2 rounded-circle hover-bg border-0 text-decoration-none" (click)="toggleSidebar()">
+        <i class="bi fs-5" [ngClass]="sidebarCollapsed ? 'bi-chevron-double-right' : 'bi-chevron-double-left'"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Space -->
+  <div class="main-content d-flex flex-column bg-light">
+    <!-- Top Header Bar -->
+    <header class="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center position-relative" style="z-index: 1040;">
+      <!-- Left side: Page Title & Breadcrumbs -->
+      <div class="d-none d-md-block">
+        <nav aria-label="breadcrumb" class="mb-1">
+          <ol class="breadcrumb mb-0">
+            <li *ngFor="let crumb of breadcrumbs; let last = last" 
+                class="breadcrumb-item d-flex align-items-center gap-1 text-muted"
+                [class.active]="last" 
+                [attr.aria-current]="last ? 'page' : null">
+              <a *ngIf="!last" [routerLink]="crumb.url" class="text-decoration-none text-muted small hover-primary">{{ crumb.label }}</a>
+              <span *ngIf="last" class="small text-dark fw-semibold">{{ crumb.label }}</span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+
+      <!-- Right side: Notifications & Role Selector / Profile -->
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <!-- Theme Toggle -->
+        <button class="btn btn-sm btn-light border d-flex align-items-center justify-content-center rounded-circle" 
+                style="width: 36px; height: 36px;"
+                (click)="toggleDarkMode()"
+                [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+          <i class="bi" [ngClass]="isDarkMode ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill text-dark'"></i>
+        </button>
+
+        <!-- Notification Bell (Links to Notifications Page) removed -->
+
+        <!-- Profile Dropdown Menu -->
+        <div class="position-relative">
+          <button class="btn btn-link p-0 border-0 rounded-circle text-decoration-none d-flex align-items-center" (click)="toggleProfileMenu()">
+            <div class="profile-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center border border-primary-subtle">
+              {{ getInitials(currentUserName) }}
+            </div>
+          </button>
+
+          <!-- Profile Dropdown panel -->
+          <div *ngIf="showProfileMenu" class="card border-0 shadow-lg position-absolute end-0 mt-2 p-0 py-2 dropdown-panel z-1050" style="width: 280px;">
+            <div class="px-3 py-3 border-bottom border-light-subtle">
+              <h6 class="fw-bold text-dark mb-0">{{ currentUserName }}</h6>
+              <span class="text-muted small">{{ currentUserEmail }}</span>
+            </div>
+
+            <a routerLink="/settings" class="dropdown-item px-3 py-2 hover-bg-subtle text-muted d-flex align-items-center gap-2" style="font-size: 0.85rem;" (click)="showProfileMenu = false">
+              <i class="bi bi-sliders"></i> System Settings
+            </a>
+            <div class="dropdown-divider my-1"></div>
+            <button class="dropdown-item px-3 py-2 hover-bg-subtle text-danger d-flex align-items-center gap-2" style="font-size: 0.85rem;" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Active Route Content Body -->
+    <main class="flex-grow-1 p-4 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer Space -->
+    <footer class="footer py-3 bg-white border-top text-center text-muted small">
+      <div class="container-fluid">
+        <span>© 2026 Eventora. Powered by Angular & Spring Boot.</span>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Non-Authenticated Public Website Layout Shell (Landing page, Events catalog, and Login/Signup) -->
+<div class="public-layout-wrapper min-vh-100 d-flex flex-column bg-light" *ngIf="!isLoggedIn || isLandingPage">
+  <!-- Public Top Navbar Header (Premium Glassmorphism) -->
+  <nav class="navbar navbar-expand-lg py-3 px-4 sticky-top border-bottom border-light-subtle z-1050 public-navbar" 
+       *ngIf="!isAuthPage">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+      <!-- Branding Logo -->
+      <a routerLink="/" class="text-decoration-none d-flex align-items-center gap-2">
+        <div class="logo-box bg-primary text-white rounded-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+          <i class="bi bi-intersect"></i>
+        </div>
+        <span class="logo-text fw-bold text-dark fs-4 mb-0" style="letter-spacing: -0.5px;">Eventora</span>
+      </a>
+
+      <!-- Navigation Links (Center) -->
+      <div class="d-none d-md-flex align-items-center gap-4 position-absolute start-50 translate-middle-x">
+        <a routerLink="/" class="text-decoration-none text-muted small fw-semibold hover-primary" routerLinkActive="text-primary fw-bold" [routerLinkActiveOptions]="{exact: true}">Home</a>
+        <a routerLink="/events" class="text-decoration-none text-muted small fw-semibold hover-primary" routerLinkActive="text-primary fw-bold">Explore Events</a>
+        <a href="#about" class="text-decoration-none text-muted small fw-semibold hover-primary">About</a>
+        <a href="#contact" class="text-decoration-none text-muted small fw-semibold hover-primary">Contact</a>
+      </div>
+
+      <!-- Right Actions: Dark Mode & Auth/Profile -->
+      <div class="d-flex align-items-center gap-3">
+        <!-- Dark Mode Toggle -->
+        <button class="btn btn-link text-muted p-2 rounded-circle hover-bg border-0 text-decoration-none" (click)="toggleDarkMode()" title="Toggle Dark/Light Mode">
+          <i class="bi fs-5" [ngClass]="isDarkMode ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill'"></i>
+        </button>
+
+        <!-- Logged Out Auth Actions -->
+        <ng-container *ngIf="!isLoggedIn">
+          <a routerLink="/login" [queryParams]="{tab: 'login'}" class="btn btn-link text-muted small text-decoration-none fw-semibold hover-primary px-2">Login</a>
+          <a routerLink="/login" [queryParams]="{tab: 'signup'}" class="btn btn-primary btn-sm px-4 py-2 rounded-3 text-white fw-semibold shadow-sm">Sign Up</a>
+        </ng-container>
+
+        <!-- Logged In Actions -->
+        <ng-container *ngIf="isLoggedIn">
+          <!-- Notification Bell removed -->
+
+          <!-- Profile Dropdown (Simplified for Landing) -->
+          <div class="position-relative">
+            <button class="btn btn-link p-0 border-0 rounded-circle text-decoration-none d-flex align-items-center" (click)="toggleProfileMenu()">
+              <div class="profile-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center border border-primary-subtle shadow-sm" style="width: 36px; height: 36px; border-radius: 50%;">
+                {{ getInitials(currentUserName) }}
+              </div>
+            </button>
+
+            <!-- Profile Dropdown panel -->
+            <div *ngIf="showProfileMenu" class="card border-0 shadow-lg position-absolute end-0 mt-2 p-0 py-2 dropdown-panel z-1050" style="width: 240px;">
+              <div class="px-3 py-3 border-bottom border-light-subtle">
+                <h6 class="fw-bold text-dark mb-0">{{ currentUserName }}</h6>
+                <span class="text-muted small">{{ currentUserEmail }}</span>
+              </div>
+              <a routerLink="/dashboard" class="dropdown-item px-3 py-2 hover-bg-subtle text-muted d-flex align-items-center gap-2" style="font-size: 0.85rem;" (click)="showProfileMenu = false">
+                <i class="bi bi-grid-1x2-fill"></i> Go to Dashboard
+              </a>
+              <button class="dropdown-item px-3 py-2 hover-bg-subtle text-danger d-flex align-items-center gap-2" style="font-size: 0.85rem;" (click)="logout()">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Public Content Main Body -->
+  <main class="flex-grow-1 p-0">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer py-3 bg-white border-top text-center text-muted small" *ngIf="!isAuthPage">
+    <div class="container-fluid">
+      <span>© 2026 Eventora. Powered by Angular & Spring Boot.</span>
+    </div>
+  </footer>
+</div>

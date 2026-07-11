@@ -1,0 +1,16 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+build/
+
+# Maven
+target/
+
+# Environment
+.env
+
+# Logs
+*.log
